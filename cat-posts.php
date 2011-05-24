@@ -2,8 +2,8 @@
 /*
 Plugin Name: Category Posts Widget
 Plugin URI: http://jameslao.com/2011/03/24/category-posts-widget-3-2/
-Description: Adds a widget that can display posts from a single category.
-Author: James Lao	
+Description: Adds a widget that can display posts from a single category. (now .w custom post types)
+Author: James Lao modified by Fredrik Holm
 Version: 3.2
 Author URI: http://jameslao.com/
 */
@@ -57,7 +57,9 @@ function widget($args, $instance) {
     "showposts=" . $instance["num"] . 
     "&cat=" . $instance["cat"] .
     "&orderby=" . $sort_by .
-    "&order=" . $sort_order
+    "&order=" . $sort_order .
+// MODDED THIS
+    "&post_type=" . $instance["post_type"]
   );
 
 	// Excerpt length filter
@@ -151,6 +153,16 @@ function update($new_instance, $old_instance) {
  * The configuration form.
  */
 function form($instance) {
+	//MODDED THIS - IT'S based on Jimmy Ngus code in recent-post-for-custom-post-types
+	$posttypes = get_post_types(null, 'objects');
+	$posttypes_opt = array();
+	
+	foreach( $posttypes as $id => $obj ) {
+		if(!$obj->_builtin)
+			$posttypes_opt[$id] = $obj->labels->name;
+	}
+	//END MOD
+	
 ?>
 		<p>
 			<label for="<?php echo $this->get_field_id("title"); ?>">
@@ -165,6 +177,15 @@ function form($instance) {
 				<?php wp_dropdown_categories( array( 'name' => $this->get_field_name("cat"), 'selected' => $instance["cat"] ) ); ?>
 			</label>
 		</p>
+		
+		<?php //MODDED HERE, added custom posts, don't know how to get the regular post type in here ...IT'S based on Jimmy Ngus code in recent-post-for-custom-post-types ?>
+		<p><label for="<?php echo $this->get_field_id('post_type'); ?>"><?php _e('Post Type:'); ?></label>
+			<select id="<?php echo $this->get_field_id('post_type'); ?>" name="<?php echo $this->get_field_name('post_type'); ?>">
+	       		<?php foreach($posttypes_opt as $id => $post_type){ ?>
+	            		<option value="<?php echo $id?>" <?php echo selected($id, $instance['post_type'])?>><?php echo $post_type?></option>
+				<?php } ?>
+	        </select></p>
+		<?php //END MOD ?>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id("num"); ?>">
